@@ -1,68 +1,66 @@
+@file:Suppress("SpellCheckingInspection")
+
 package com.gildedrose
 
 open class Item(
-    val name: String,
-    var sellIn: Int,
-    var quality: Int
+    val name: String, var sellIn: Int, var quality: Int
 ) {
     override fun toString(): String {
         return this.name + ", " + this.sellIn + ", " + this.quality
     }
 }
 
-class BaseItem(
-    name: String,
-    sellIn: Int,
-    quality: Int
-) : Item(name, sellIn, quality) {
+open class BaseItem(name: String, sellIn: Int, quality: Int) : Item(name, sellIn, quality) {
     fun update() {
-        val name = name
-        if (name != "Aged Brie" && name != "Backstage passes to a TAFKAL80ETC concert") {
-            if (quality > 0) {
-                if (name != "Sulfuras, Hand of Ragnaros") {
-                    quality = quality - 1
-                }
-            }
-        } else {
-            if (quality < 50) {
-                quality = quality + 1
+        updateAge()
+        updateQuality()
+    }
 
-                if (name == "Backstage passes to a TAFKAL80ETC concert") {
-                    if (sellIn < 11) {
-                        if (quality < 50) {
-                            quality = quality + 1
-                        }
-                    }
+    protected open fun updateAge() {
+        sellIn = sellIn - 1
+    }
 
-                    if (sellIn < 6) {
-                        if (quality < 50) {
-                            quality = quality + 1
-                        }
-                    }
-                }
-            }
+    protected open fun updateQuality() {
+        if (quality > 0) {
+            quality -= if (sellIn < 0 && quality != 1) 2 else 1
         }
+    }
+}
 
-        if (name != "Sulfuras, Hand of Ragnaros") {
-            sellIn = sellIn - 1
+class Brie(name: String, sellIn: Int, quality: Int) : BaseItem(name, sellIn, quality) {
+    override fun updateQuality() {
+        if (quality < 50) {
+            quality += if (sellIn < 0) 2 else 1
         }
+    }
 
-        if (sellIn < 0) {
-            if (name != "Aged Brie") {
-                if (name != "Backstage passes to a TAFKAL80ETC concert") {
-                    if (quality > 0) {
-                        if (name != "Sulfuras, Hand of Ragnaros") {
-                            quality = quality - 1
-                        }
-                    }
-                } else {
-                    quality = quality - quality
-                }
-            } else {
+}
+
+class Sulfuras(name: String, sellIn: Int, quality: Int) : BaseItem(name, sellIn, quality) {
+    override fun updateAge() {}
+    override fun updateQuality() {}
+
+}
+
+class BackstagePass(name: String, sellIn: Int, quality: Int) : BaseItem(name, sellIn, quality) {
+    override fun updateQuality() {
+        if (quality < 50) {
+            quality = quality + 1
+
+            if (sellIn < 10) {
                 if (quality < 50) {
                     quality = quality + 1
                 }
             }
+
+            if (sellIn < 5) {
+                if (quality < 50) {
+                    quality = quality + 1
+                }
+            }
+        }
+        if (sellIn < 0) {
+            quality = 0
         }
     }
 }
