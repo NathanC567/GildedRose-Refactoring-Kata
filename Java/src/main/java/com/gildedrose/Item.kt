@@ -14,6 +14,12 @@ open class BaseItem(name: String, sellIn: Int, quality: Int) : Item(name, sellIn
     fun update() {
         updateAge()
         updateQuality()
+        resetQuality()
+    }
+
+    protected open fun resetQuality() {
+        if (quality < 0) quality = 0
+        else if (quality > 50) quality = 50
     }
 
     protected open fun updateAge() {
@@ -21,47 +27,29 @@ open class BaseItem(name: String, sellIn: Int, quality: Int) : Item(name, sellIn
     }
 
     protected open fun updateQuality() {
-        if (quality > 0) {
-            quality -= if (sellIn < 0 && quality != 1) 2 else 1
-        }
+        quality -= if (sellIn < 0 && quality != 1) 2 else 1
     }
 }
 
 class Brie(name: String, sellIn: Int, quality: Int) : BaseItem(name, sellIn, quality) {
     override fun updateQuality() {
-        if (quality < 50) {
-            quality += if (sellIn < 0) 2 else 1
-        }
+        quality += if (sellIn < 0) 2 else 1
     }
-
 }
 
 class Sulfuras(name: String, sellIn: Int, quality: Int) : BaseItem(name, sellIn, quality) {
     override fun updateAge() {}
     override fun updateQuality() {}
+    override fun resetQuality() {}
 
 }
 
 class BackstagePass(name: String, sellIn: Int, quality: Int) : BaseItem(name, sellIn, quality) {
-    override fun updateQuality() {
-        if (quality < 50) {
-            quality = quality + 1
-
-            if (sellIn < 10) {
-                if (quality < 50) {
-                    quality = quality + 1
-                }
-            }
-
-            if (sellIn < 5) {
-                if (quality < 50) {
-                    quality = quality + 1
-                }
-            }
-        }
-        if (sellIn < 0) {
-            quality = 0
-        }
+    override fun updateQuality() = when {
+        sellIn < 0 -> quality = 0
+        sellIn < 5 -> quality += 3
+        sellIn < 10 -> quality += 2
+        else -> quality += 1
     }
 }
 
